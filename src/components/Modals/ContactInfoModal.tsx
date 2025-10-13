@@ -79,6 +79,22 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => (
             {oooc.conversation.lastActivityAt.toLocaleString()}
           </div>
         </div>
+        <div className="mt-4">
+          <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
+            My Alias
+          </div>
+          <div className="text-sm text-[var(--text-primary)]">
+            {oooc.conversation.myAlias}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
+            Their Alias
+          </div>
+          <div className="text-sm text-[var(--text-primary)]">
+            {oooc.conversation.theirAlias ?? "N/A"}
+          </div>
+        </div>
       </div>
     </div>
   </div>
