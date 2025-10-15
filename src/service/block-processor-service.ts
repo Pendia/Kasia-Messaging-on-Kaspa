@@ -17,6 +17,7 @@ import EventEmitter from "eventemitter3";
 import { devMode } from "../config/dev-mode";
 import { useBroadcastStore } from "../store/broadcast.store";
 import { getTransactionId } from "../types/transactions";
+import { useBlocklistStore } from "../store/blocklist.store";
 
 export type RawResolvedKasiaTransaction = {
   id: string;
@@ -142,6 +143,19 @@ export class BlockProcessorService extends EventEmitter<{
 
       const messageType = parsed.type;
       const targetAlias = parsed.alias;
+
+      // check if sender is blocked - reject direct messages, allow broadcasts to be filtered by UI
+      const blocklistStore = useBlocklistStore.getState();
+      const isSenderBlocked = blocklistStore.isBlocked(resolvedSenderAddress);
+
+      if (isSenderBlocked && messageType !== PROTOCOL.headers.BROADCAST.type) {
+        if (devMode) {
+          console.log(
+            `Block Processor - Rejecting message from blocked address: ${resolvedSenderAddress}`
+          );
+        }
+        return; // don't process messages from blocked addresses
+      }
 
       const isCommForUs =
         messageType === PROTOCOL.headers.COMM.type &&

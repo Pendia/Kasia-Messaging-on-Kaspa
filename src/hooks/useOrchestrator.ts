@@ -9,6 +9,7 @@ import { UnlockedWallet } from "../types/wallet.type";
 import { useLiveStore } from "../store/live.store";
 import { useBroadcastStore } from "../store/broadcast.store";
 import { useFeatureFlagsStore, FeatureFlags } from "../store/featureflag.store";
+import { useBlocklistStore } from "../store/blocklist.store";
 
 export type ConnectOpts = {
   networkType?: NetworkType;
@@ -142,6 +143,18 @@ export const useOrchestrator = () => {
           )
         );
     }
+
+    // load blocked addresses
+    useBlocklistStore
+      .getState()
+      .loadBlockedAddresses()
+      .then(() => console.log("Blocked addresses loaded"))
+      .catch((error) =>
+        console.error(
+          "Failed to load blocked addresses during initialization:",
+          error
+        )
+      );
 
     if (networkStore.rpc) {
       liveStore.start(networkStore.rpc, receivedAddressString);

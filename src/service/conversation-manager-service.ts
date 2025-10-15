@@ -14,6 +14,7 @@ import {
 } from "../store/repository/conversation.repository";
 import { Contact } from "../store/repository/contact.repository";
 import { Handshake } from "../store/repository/handshake.repository";
+import { useBlocklistStore } from "../store/blocklist.store";
 
 export class ConversationManagerService {
   private static readonly STORAGE_KEY_PREFIX = "encrypted_conversations";
@@ -168,6 +169,15 @@ export class ConversationManagerService {
     payload: HandshakePayload
   ): Promise<unknown> {
     try {
+      // check if sender is blocked before processing handshake
+      const blocklistStore = useBlocklistStore.getState();
+      if (blocklistStore.isBlocked(senderAddress)) {
+        console.log(
+          `Conversation Manager - Rejecting handshake from blocked address: ${senderAddress}`
+        );
+        return; // don't process handshakes from blocked addresses
+      }
+
       // STEP 1 – look up strictly by sender address only
       const existingConversationAndContactByAddress =
         this.getConversationWithContactByAddress(senderAddress);

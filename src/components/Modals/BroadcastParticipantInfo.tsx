@@ -2,6 +2,8 @@ import { FC } from "react";
 import { AvatarHash } from "../icons/AvatarHash";
 import { CopyableValueWithQR } from "./CopyableValueWithQR";
 import clsx from "clsx";
+import { useBlocklistStore } from "../../store/blocklist.store";
+import { BlockUnblockButton } from "../Common/BlockUnblockButton";
 
 type BroadcastParticipantInfoProps = {
   address: string;
@@ -12,7 +14,11 @@ type BroadcastParticipantInfoProps = {
 export const BroadcastParticipantInfo: FC<BroadcastParticipantInfoProps> = ({
   address,
   nickname,
+  onClose,
 }) => {
+  const blocklistStore = useBlocklistStore();
+  const isBlocked = blocklistStore.blockedAddresses.has(address);
+
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <div className="space-y-2">
@@ -42,8 +48,16 @@ export const BroadcastParticipantInfo: FC<BroadcastParticipantInfoProps> = ({
             )}
           </div>
           <div>
-            <div className="font-semibold break-all text-[var(--text-primary)]">
-              {nickname || "No nickname"}
+            <div className="flex items-center gap-2">
+              <div className="font-semibold break-all text-[var(--text-primary)]">
+                {nickname || "No nickname"}
+              </div>
+              {/* actions menu */}
+              <BlockUnblockButton
+                address={address}
+                onBlock={onClose}
+                className="flex-shrink-0"
+              />
             </div>
             <div className="text-sm text-[var(--text-secondary)]">
               Broadcast Participant
@@ -53,6 +67,15 @@ export const BroadcastParticipantInfo: FC<BroadcastParticipantInfoProps> = ({
 
         {/* Address section */}
         <CopyableValueWithQR value={address} />
+
+        {/* block status */}
+        {isBlocked && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+            <div className="text-xs font-medium text-red-400">
+              This participant is blocked
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

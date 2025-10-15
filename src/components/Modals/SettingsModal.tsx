@@ -33,6 +33,8 @@ import {
   Palette,
   RectangleEllipsis,
   Coffee,
+  Ban,
+  X,
 } from "lucide-react";
 import { toHex, PROTOCOL } from "../../config/protocol";
 import { devMode } from "../../config/dev-mode";
@@ -44,6 +46,7 @@ import { HoldToDelete } from "../Common/HoldToDelete";
 import { AppVersion } from "../App/AppVersion";
 import { toast } from "../../utils/toast-helper";
 import { Donations } from "../Common/Donations";
+import { useBlocklistStore } from "../../store/blocklist.store";
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -87,12 +90,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const initRepositories = useDBStore((s) => s.initRepositories);
   const setSession = useSessionState((s) => s.setSession);
   const { flags, flips, setFlag } = useFeatureFlagsStore();
+  const blocklistStore = useBlocklistStore();
 
   const tabs = [
     { id: "account", label: "Account", icon: User },
     { id: "theme", label: "Theme", icon: Monitor },
     { id: "network", label: "Network", icon: Network },
     { id: "security", label: "Security", icon: Shield },
+    { id: "blocklist", label: "Blocklist", icon: Shield },
     // only show if there are >0 flips
     ...(Object.keys(flips).length > 0
       ? [{ id: "extras", label: "Extra", icon: RectangleEllipsis }]
@@ -951,6 +956,121 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </div>
                   </>
                 )}
+              </div>
+            )}
+            {activeTab === "blocklist" && (
+              <div className="mt-3 space-y-6 sm:mt-0">
+                <h3 className="mb-4 text-lg font-medium">Blocklist</h3>
+
+                <div className="space-y-4">
+                  {/* broadcast display mode toggle */}
+                  <div className="border-primary-border bg-primary-bg rounded-2xl border p-4">
+                    <div className="mb-3 text-sm font-medium">
+                      Broadcast Display Mode
+                    </div>
+                    <div className="text-muted-foreground mb-3 text-xs">
+                      Choose how to display messages from blocked participants
+                      in broadcasts
+                    </div>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() =>
+                          blocklistStore.setBroadcastBlockedDisplayMode(
+                            "placeholder"
+                          )
+                        }
+                        className={clsx(
+                          "flex w-full cursor-pointer items-center gap-2 rounded-lg border p-3 transition-all",
+                          blocklistStore.broadcastBlockedDisplayMode ===
+                            "placeholder"
+                            ? "bg-kas-secondary/10 border-kas-secondary"
+                            : "bg-primary-bg border-primary-border hover:bg-primary-bg/50"
+                        )}
+                      >
+                        <div className="text-left">
+                          <div className="text-sm font-medium">
+                            Show Placeholder
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            Display "Message from blocked participant"
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() =>
+                          blocklistStore.setBroadcastBlockedDisplayMode("hide")
+                        }
+                        className={clsx(
+                          "flex w-full cursor-pointer items-center gap-2 rounded-lg border p-3 transition-all",
+                          blocklistStore.broadcastBlockedDisplayMode === "hide"
+                            ? "bg-kas-secondary/10 border-kas-secondary"
+                            : "bg-primary-bg border-primary-border hover:bg-primary-bg/50"
+                        )}
+                      >
+                        <div className="text-left">
+                          <div className="text-sm font-medium">
+                            Hide Completely
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            Don't show messages from blocked participants
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* blocked addresses list */}
+                  <div className="border-primary-border bg-primary-bg rounded-2xl border p-4">
+                    <div className="mb-3 text-sm font-medium">
+                      Blocked Addresses (
+                      {blocklistStore.blockedAddressList.length})
+                    </div>
+                    {blocklistStore.blockedAddressList.length === 0 ? (
+                      <div className="text-muted-foreground py-4 text-center text-sm">
+                        No blocked addresses
+                      </div>
+                    ) : (
+                      <div className="max-h-96 space-y-2 overflow-y-auto">
+                        {blocklistStore.blockedAddressList.map((blocked) => (
+                          <div
+                            key={blocked.id}
+                            className="bg-primary-bg/50 border-primary-border flex items-center justify-between rounded-lg border p-3"
+                          >
+                            <div className="flex-1 overflow-hidden">
+                              <div className="text-xs break-all text-[var(--text-primary)]">
+                                {blocked.kaspaAddress}
+                              </div>
+                              {blocked.reason && (
+                                <div className="text-muted-foreground mt-1 text-xs">
+                                  {blocked.reason}
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  await blocklistStore.unblockAddress(
+                                    blocked.kaspaAddress
+                                  );
+                                  toast.success("Address unblocked");
+                                } catch (error) {
+                                  console.error(
+                                    "Error unblocking address:",
+                                    error
+                                  );
+                                  toast.error("Failed to unblock address");
+                                }
+                              }}
+                              className="text-muted-foreground ml-2 p-1 transition-colors hover:text-red-500"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
             {activeTab === "extras" && (
