@@ -19,7 +19,7 @@ export type DbBlockedAddress = {
 
 export type BlockedAddressBag = {
   kaspaAddress: string;
-  reason?: string; // optional reason for blocking
+  reason?: string;
 };
 
 export type BlockedAddress = BlockedAddressBag &

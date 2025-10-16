@@ -5,6 +5,7 @@ import { DateSeparator } from "../../DateSeparator";
 import { isToday } from "../../../utils/message-date-format";
 import { useBlocklistStore } from "../../../store/blocklist.store";
 
+export const BLOCKED_PLACEHOLDER = "Blocked Contact";
 interface BroadcastMessagesListProps {
   messages: BroadcastMessage[];
   walletAddress: string;
@@ -29,7 +30,7 @@ export const BroadcastMessagesList: FC<BroadcastMessagesListProps> = ({
       if (isSenderBlocked && broadcastBlockedDisplayMode === "placeholder") {
         return {
           ...message,
-          content: "Blocked Contact",
+          content: BLOCKED_PLACEHOLDER,
           isBlockedPlaceholder: true,
         };
       }
