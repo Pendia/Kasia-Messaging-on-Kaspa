@@ -796,8 +796,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         className={clsx(
                           "h-2 w-2 rounded-full",
                           networkStore.isConnected
-                            ? "bg-green-500"
-                            : "bg-red-500"
+                            ? "bg-[var(--accent-green)]"
+                            : "bg-[var(--accent-red)]"
                         )}
                       />
                       {networkStore.network}{" "}

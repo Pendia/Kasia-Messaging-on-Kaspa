@@ -142,8 +142,8 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({
           </div>
           {/* block status */}
           {isBlocked && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-              <div className="text-xs font-medium text-red-400">
+            <div className="rounded-lg border border-red-500/30 bg-[var(--accent-red)]/10 p-3">
+              <div className="text-xs font-medium text-[var(--accent-red)]">
                 This contact is blocked
               </div>
             </div>

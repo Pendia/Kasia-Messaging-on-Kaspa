@@ -11,7 +11,7 @@ import { ContactInfoModal } from "../Modals/ContactInfoModal";
 import { NewChatForm } from "../Modals/NewChatForm";
 import { LoaderCircle } from "lucide-react";
 import { ImagePresenter } from "../Modals/ImagePresenter";
-import { BroadcastParticipantInfo } from "../Modals/BroadcastParticipantInfo";
+import { BroadcastParticipantInfoModal } from "../Modals/BroadcastParticipantInfoModal";
 import { QrScannerModal } from "../Modals/QrScannerModal";
 import { OffChainHandshakeModal } from "../Modals/OffChainHandshakeModal";
 import { DeleteWalletModal } from "../Modals/DeleteWalletModal";
@@ -137,7 +137,7 @@ export const ModalHost = () => {
             setSelectedParticipant(null);
           }}
         >
-          <BroadcastParticipantInfo
+          <BroadcastParticipantInfoModal
             address={broadcastParticipant.address}
             nickname={broadcastParticipant.nickname}
           />

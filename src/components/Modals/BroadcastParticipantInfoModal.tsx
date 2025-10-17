@@ -5,15 +5,14 @@ import clsx from "clsx";
 import { useBlocklistStore } from "../../store/blocklist.store";
 import { BlockUnblockButton } from "../Common/BlockUnblockButton";
 
-type BroadcastParticipantInfoProps = {
+type BroadcastParticipantInfoModalProps = {
   address: string;
   nickname?: string;
 };
 
-export const BroadcastParticipantInfo: FC<BroadcastParticipantInfoProps> = ({
-  address,
-  nickname,
-}) => {
+export const BroadcastParticipantInfoModal: FC<
+  BroadcastParticipantInfoModalProps
+> = ({ address, nickname }) => {
   const blocklistStore = useBlocklistStore();
   const isBlocked = blocklistStore.blockedAddresses.has(address);
 
@@ -64,8 +63,8 @@ export const BroadcastParticipantInfo: FC<BroadcastParticipantInfoProps> = ({
 
         {/* block status */}
         {isBlocked && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-            <div className="text-xs font-medium text-red-400">
+          <div className="rounded-lg border border-red-500/30 bg-[var(--accent-red)]/10 p-3">
+            <div className="text-xs font-medium text-[var(--accent-red)]">
               This participant is blocked
             </div>
           </div>
