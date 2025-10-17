@@ -3,7 +3,6 @@ import { OneOnOneConversation } from "../../types/all";
 import { AvatarHash } from "../icons/AvatarHash";
 import clsx from "clsx";
 import { useBlocklistStore } from "../../store/blocklist.store";
-import { useDBStore } from "../../store/db.store";
 import { useMessagingStore } from "../../store/messaging.store";
 import { useUiStore } from "../../store/ui.store";
 import { toast } from "../../utils/toast-helper";
@@ -19,7 +18,6 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({
   onClose,
 }) => {
   const blocklistStore = useBlocklistStore();
-  const repositories = useDBStore((s) => s.repositories);
   const messagingStore = useMessagingStore();
 
   const isBlocked = blocklistStore.blockedAddresses.has(
@@ -37,21 +35,9 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({
       cancelText: "Cancel",
       onConfirm: async () => {
         try {
-          // block the contact
-          await blocklistStore.blockAddress(oooc.contact.kaspaAddress);
-
-          // delete all messages, conversation, and contact from database
-          await repositories.deleteAllDataForContact(oooc.contact.id, {
-            deleteConversation: true,
-            deleteContact: true,
-          });
-
-          // remove the conversation from in-memory store
-          useMessagingStore.setState((state) => ({
-            oneOnOneConversations: state.oneOnOneConversations.filter(
-              (conversation) => conversation.contact.id !== oooc.contact.id
-            ),
-          }));
+          await blocklistStore.blockAddressAndDeleteData(
+            oooc.contact.kaspaAddress
+          );
 
           // close modal and navigate away
           messagingStore.setOpenedRecipient(null);

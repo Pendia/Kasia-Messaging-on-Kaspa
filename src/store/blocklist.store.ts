@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useDBStore } from "./db.store";
+import { useMessagingStore } from "./messaging.store";
 import { BlockedAddress } from "./repository/blocked-address.repository";
 import { v4 } from "uuid";
 
@@ -9,7 +10,10 @@ interface BlocklistState {
   isLoaded: boolean;
 
   loadBlockedAddresses: () => Promise<void>;
-  blockAddress: (address: string, reason?: string) => Promise<void>;
+  blockAddressAndDeleteData: (
+    address: string,
+    reason?: string
+  ) => Promise<void>;
   unblockAddress: (address: string) => Promise<void>;
   isBlocked: (address: string) => boolean;
   reset: () => void;
@@ -69,46 +73,74 @@ export const useBlocklistStore = create<BlocklistState>((set, get) => ({
     }
   },
 
-  blockAddress: async (address: string, reason?: string) => {
+  blockAddressAndDeleteData: async (address: string, reason?: string) => {
     try {
       const repositories = useDBStore.getState().repositories;
       if (!repositories) {
         throw new Error("Repositories not initialized");
       }
 
-      // check if already blocked
-      if (get().blockedAddresses.has(address)) {
-        console.log(`Address ${address} is already blocked`);
-        return;
+      // First block the address
+      {
+        // check if already blocked
+        if (get().blockedAddresses.has(address)) {
+          console.log(`Address ${address} is already blocked`);
+        } else {
+          const newBlockedAddress: Omit<BlockedAddress, "tenantId"> = {
+            id: v4(),
+            kaspaAddress: address,
+            timestamp: new Date(),
+            reason,
+          };
+
+          await repositories.blockedAddressRepository.saveBlockedAddress(
+            newBlockedAddress
+          );
+
+          // update in-memory state
+          set((state) => {
+            const newSet = new Set(state.blockedAddresses);
+            newSet.add(address);
+            return {
+              blockedAddresses: newSet,
+              blockedAddressList: [
+                ...state.blockedAddressList,
+                { ...newBlockedAddress, tenantId: repositories.tenantId },
+              ],
+            };
+          });
+
+          console.log(`Blocked address: ${address}`);
+        }
       }
 
-      const newBlockedAddress: Omit<BlockedAddress, "tenantId"> = {
-        id: v4(),
-        kaspaAddress: address,
-        timestamp: new Date(),
-        reason,
-      };
+      // Try to find a contact with this address
+      const contact = await repositories.contactRepository
+        .getContactByKaspaAddress(address)
+        .catch(() => null);
 
-      await repositories.blockedAddressRepository.saveBlockedAddress(
-        newBlockedAddress
-      );
+      if (contact) {
+        // Delete all messages, conversation, and contact data
+        await repositories.deleteAllDataForContact(contact.id, {
+          deleteConversation: true,
+          deleteContact: true,
+        });
 
-      // update in-memory state
-      set((state) => {
-        const newSet = new Set(state.blockedAddresses);
-        newSet.add(address);
-        return {
-          blockedAddresses: newSet,
-          blockedAddressList: [
-            ...state.blockedAddressList,
-            { ...newBlockedAddress, tenantId: repositories.tenantId },
-          ],
-        };
-      });
+        // Remove the conversation from in-memory store
+        useMessagingStore.setState((state) => ({
+          oneOnOneConversations: state.oneOnOneConversations.filter(
+            (conversation) => conversation.contact.id !== contact.id
+          ),
+        }));
 
-      console.log(`Blocked address: ${address}`);
+        console.log(
+          `Blocked address and deleted all data for contact: ${address}`
+        );
+      } else {
+        console.log(`Blocked address (no contact found to delete): ${address}`);
+      }
     } catch (error) {
-      console.error("Failed to block address:", error);
+      console.error("Failed to block address and delete data:", error);
       throw error;
     }
   },

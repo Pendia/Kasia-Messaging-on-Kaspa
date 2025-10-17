@@ -38,8 +38,8 @@ export const BlockUnblockButton: React.FC<BlockUnblockButtonProps> = ({
         if (onBlock) {
           onBlock();
         } else {
-          // Default behavior: block directly
-          await blocklistStore.blockAddress(address);
+          // Default behavior: block and delete data
+          await blocklistStore.blockAddressAndDeleteData(address);
           toast.success("Blocked");
         }
       }

@@ -3,7 +3,9 @@ import { AvatarHash } from "../icons/AvatarHash";
 import { CopyableValueWithQR } from "./CopyableValueWithQR";
 import clsx from "clsx";
 import { useBlocklistStore } from "../../store/blocklist.store";
+import { useUiStore } from "../../store/ui.store";
 import { BlockUnblockButton } from "../Common/BlockUnblockButton";
+import { toast } from "../../utils/toast-helper";
 
 type BroadcastParticipantInfoModalProps = {
   address: string;
@@ -14,7 +16,30 @@ export const BroadcastParticipantInfoModal: FC<
   BroadcastParticipantInfoModalProps
 > = ({ address, nickname }) => {
   const blocklistStore = useBlocklistStore();
+  const uiStore = useUiStore();
   const isBlocked = blocklistStore.blockedAddresses.has(address);
+
+  const handleBlockWithConfirmation = () => {
+    // set up confirmation modal
+    uiStore.setConfirmationConfig({
+      title: "Block Participant",
+      message: `This will block ${nickname || "this participant"} and delete any existing direct messages with them.`,
+      confirmText: "Block",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        try {
+          await blocklistStore.blockAddressAndDeleteData(address);
+          toast.success("Participant blocked");
+        } catch (error) {
+          console.error("Error blocking participant:", error);
+          toast.error("Failed to block participant");
+        }
+      },
+    });
+
+    // open confirmation modal
+    uiStore.openModal("confirm");
+  };
 
   return (
     <div onClick={(e) => e.stopPropagation()}>
@@ -50,7 +75,11 @@ export const BroadcastParticipantInfoModal: FC<
                 {nickname || "No nickname"}
               </div>
               {/* actions menu */}
-              <BlockUnblockButton address={address} className="flex-shrink-0" />
+              <BlockUnblockButton
+                address={address}
+                onBlock={handleBlockWithConfirmation}
+                className="flex-shrink-0"
+              />
             </div>
             <div className="text-sm text-[var(--text-secondary)]">
               Broadcast Participant
