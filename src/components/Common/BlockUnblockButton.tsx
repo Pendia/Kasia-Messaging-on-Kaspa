@@ -35,9 +35,13 @@ export const BlockUnblockButton: React.FC<BlockUnblockButtonProps> = ({
         toast.success("Unblocked");
         onUnblock?.();
       } else {
-        await blocklistStore.blockAddress(address);
-        toast.success("Blocked");
-        onBlock?.();
+        if (onBlock) {
+          onBlock();
+        } else {
+          // Default behavior: block directly
+          await blocklistStore.blockAddress(address);
+          toast.success("Blocked");
+        }
       }
     } catch (error) {
       console.error("Error blocking/unblocking:", error);

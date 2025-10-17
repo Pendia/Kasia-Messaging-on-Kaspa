@@ -140,10 +140,6 @@ export const ModalHost = () => {
           <BroadcastParticipantInfo
             address={broadcastParticipant.address}
             nickname={broadcastParticipant.nickname}
-            onClose={() => {
-              closeModal("broadcast-participant-info");
-              setSelectedParticipant(null);
-            }}
           />
         </Modal>
       )}

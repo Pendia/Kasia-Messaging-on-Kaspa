@@ -442,9 +442,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         isMobile && activeTab === tab.id,
                       "text-primary bg-primary-bg border-kas-secondary rounded-lg border":
                         !isMobile && activeTab === tab.id,
-                      "text-muted-foreground hover:text-primary border-b-2 border-transparent":
+                      "hover:text-primary border-b-2 border-transparent":
                         isMobile && activeTab !== tab.id,
-                      "text-muted-foreground hover:text-primary border border-transparent":
+                      "hover:text-primary border border-transparent":
                         !isMobile && activeTab !== tab.id,
                     }
                   )}
@@ -484,7 +484,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <div className="mb-2 text-sm font-bold">
                             Your Wallet:
                           </div>
-                          <div className="text-muted-foreground text-lg font-bold">
+                          <div className="text-lg font-bold">
                             {unlockedWallet.name}
                           </div>
                         </div>
@@ -500,7 +500,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <div className="text-sm font-medium">
                             Change Wallet Name
                           </div>
-                          <div className="text-muted-foreground text-xs">
+                          <div className="text-xs">
                             Update your wallet's display name
                           </div>
                         </div>
@@ -516,7 +516,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <div className="text-sm font-medium">
                               Import / Export Messages
                             </div>
-                            <div className="text-muted-foreground text-xs">
+                            <div className="text-xs">
                               Backup or restore your message history
                             </div>
                           </div>
@@ -534,7 +534,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <div className="text-sm font-medium">
                             Delete All Messages
                           </div>
-                          <div className="text-muted-foreground text-xs">
+                          <div className="text-xs">
                             Permanently remove all conversations and data
                           </div>
                         </div>
@@ -546,7 +546,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="mb-2 flex items-center gap-3">
                       <button
                         onClick={resetNameChangeForm}
-                        className="hover:text-primary text-muted-foreground cursor-pointer p-1 transition-colors"
+                        className="hover:text-primary cursor-pointer p-1 transition-colors"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </button>
@@ -561,7 +561,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <div className="mb-2 text-green-500">
                             Wallet name changed successfully!
                           </div>
-                          <div className="text-muted-foreground text-sm">
+                          <div className="text-sm">
                             Your wallet name has been updated.
                           </div>
                         </div>
@@ -627,7 +627,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="mb-2 flex items-center gap-3">
                       <button
                         onClick={() => setShowImportExport(false)}
-                        className="hover:text-primary text-muted-foreground cursor-pointer p-1 transition-colors"
+                        className="hover:text-primary cursor-pointer p-1 transition-colors"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </button>
@@ -642,7 +642,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="mb-2 flex items-center gap-3">
                       <button
                         onClick={() => setShowDeleteAll(false)}
-                        className="hover:text-primary text-muted-foreground cursor-pointer p-1 transition-colors"
+                        className="hover:text-primary cursor-pointer p-1 transition-colors"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </button>
@@ -661,7 +661,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <div className="mb-4 text-sm font-medium">
                           Confirm Deletion
                         </div>
-                        <div className="text-muted-foreground mb-4 text-sm">
+                        <div className="mb-4 text-sm">
                           Click and hold the delete button below to confirm you
                           want to permanently delete all messages.
                         </div>
@@ -745,7 +745,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="mb-2 flex items-center gap-3">
                       <button
                         onClick={() => setShowCustomTheme(false)}
-                        className="hover:text-primary text-muted-foreground cursor-pointer p-1 transition-colors"
+                        className="hover:text-primary cursor-pointer p-1 transition-colors"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </button>
@@ -791,7 +791,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="mb-2 text-sm font-medium">
                       Current Network
                     </div>
-                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                    <div className="flex items-center gap-2 text-xs">
                       <div
                         className={clsx(
                           "h-2 w-2 rounded-full",
@@ -806,7 +806,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         : "(Disconnected)"}
                     </div>
                     {networkStore.nodeUrl && (
-                      <div className="text-muted-foreground mt-2 text-xs">
+                      <div className="mt-2 text-xs">
                         <div className="text-xs break-all">
                           {networkStore.nodeUrl}
                         </div>
@@ -838,7 +838,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <div className="text-sm font-medium">
                             Change Password
                           </div>
-                          <div className="text-muted-foreground text-xs">
+                          <div className="text-xs">
                             Update the password used to unlock your wallet
                           </div>
                         </div>
@@ -855,7 +855,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <Key className="h-5 w-5" />
                         <div className="text-left">
                           <div className="text-sm font-medium">Seed Phrase</div>
-                          <div className="text-muted-foreground text-xs">
+                          <div className="text-xs">
                             View Your Wallets Seed Phrase
                           </div>
                         </div>
@@ -869,7 +869,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <Shield className="h-5 w-5" />
                         <div className="text-left">
                           <div className="text-sm font-medium">Blocklist</div>
-                          <div className="text-muted-foreground text-xs">
+                          <div className="text-xs">
                             Manage blocked addresses and privacy settings
                           </div>
                         </div>
@@ -881,7 +881,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="mb-4 flex items-center gap-3">
                       <button
                         onClick={resetPasswordChangeForm}
-                        className="hover:text-primary text-muted-foreground cursor-pointer p-1 transition-colors"
+                        className="hover:text-primary cursor-pointer p-1 transition-colors"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </button>
@@ -894,7 +894,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <div className="mb-2 text-green-500">
                             Password changed successfully!
                           </div>
-                          <div className="text-muted-foreground text-sm">
+                          <div className="text-sm">
                             Your wallet password has been updated.
                           </div>
                         </div>
@@ -979,7 +979,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="mb-4 flex items-center gap-3">
                       <button
                         onClick={() => setShowBlocklist(false)}
-                        className="hover:text-primary text-muted-foreground cursor-pointer p-1 transition-colors"
+                        className="hover:text-primary cursor-pointer p-1 transition-colors"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </button>
@@ -1016,7 +1016,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           <div className="mb-1 text-sm font-semibold">
                             {item.label}
                           </div>
-                          <div className="text-muted-foreground text-xs whitespace-pre-line">
+                          <div className="text-xs whitespace-pre-line">
                             {item.desc}
                           </div>
                         </div>

@@ -390,6 +390,15 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
             metadata
           );
 
+          // Skip processing historical data for blocked addresses
+          // const blocklistStore = useBlocklistStore.getState();
+          // if (blocklistStore.blockedAddresses.has(senderAddress)) {
+          //   console.log(
+          //     `Skipping historical handshake processing for blocked address: ${senderAddress}`
+          //   );
+          //   return;
+          // }
+
           console.log(
             "Loading Strategy - handshake history reconciliation loaded"
           );

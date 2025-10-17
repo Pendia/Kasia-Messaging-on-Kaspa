@@ -8,13 +8,11 @@ import { BlockUnblockButton } from "../Common/BlockUnblockButton";
 type BroadcastParticipantInfoProps = {
   address: string;
   nickname?: string;
-  onClose: () => void;
 };
 
 export const BroadcastParticipantInfo: FC<BroadcastParticipantInfoProps> = ({
   address,
   nickname,
-  onClose,
 }) => {
   const blocklistStore = useBlocklistStore();
   const isBlocked = blocklistStore.blockedAddresses.has(address);
@@ -53,11 +51,7 @@ export const BroadcastParticipantInfo: FC<BroadcastParticipantInfoProps> = ({
                 {nickname || "No nickname"}
               </div>
               {/* actions menu */}
-              <BlockUnblockButton
-                address={address}
-                onBlock={onClose}
-                className="flex-shrink-0"
-              />
+              <BlockUnblockButton address={address} className="flex-shrink-0" />
             </div>
             <div className="text-sm text-[var(--text-secondary)]">
               Broadcast Participant
