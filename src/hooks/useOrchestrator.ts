@@ -146,7 +146,25 @@ export const useOrchestrator = () => {
       useBroadcastStore
         .getState()
         .loadChannels()
-        .then(() => console.log("Broadcast channels loaded"))
+        .then(async () => {
+          console.log("Broadcast channels loaded");
+
+          // Add default broadcast channel if not already added
+          const defaultsLoaded = localStorage.getItem(
+            "kasia-load-defaults-true"
+          );
+          if (!defaultsLoaded) {
+            try {
+              await useBroadcastStore
+                .getState()
+                .addChannel("kasia-general", "default");
+              localStorage.setItem("kasia-load-defaults-true", "true");
+              console.log("Added default broadcast channel: kasia-general");
+            } catch (error) {
+              console.error("Failed to add default broadcast channel:", error);
+            }
+          }
+        })
         .catch((error) =>
           console.error(
             "Failed to load broadcast channels during initialization:",
