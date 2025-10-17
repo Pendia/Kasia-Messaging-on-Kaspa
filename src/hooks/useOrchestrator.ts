@@ -126,6 +126,17 @@ export const useOrchestrator = () => {
       conversationManager: null,
     });
 
+    // load blocked addresses BEFORE messaging store to prevent rehydrating blocked contacts
+    try {
+      await useBlocklistStore.getState().loadBlockedAddresses();
+      console.log("Blocked addresses loaded");
+    } catch (error) {
+      console.error(
+        "Failed to load blocked addresses during initialization:",
+        error
+      );
+    }
+
     await messagingStore.load(receivedAddressString);
 
     // load broadcast channels async so we can start processing them straight away
@@ -143,18 +154,6 @@ export const useOrchestrator = () => {
           )
         );
     }
-
-    // load blocked addresses
-    useBlocklistStore
-      .getState()
-      .loadBlockedAddresses()
-      .then(() => console.log("Blocked addresses loaded"))
-      .catch((error) =>
-        console.error(
-          "Failed to load blocked addresses during initialization:",
-          error
-        )
-      );
 
     if (networkStore.rpc) {
       liveStore.start(networkStore.rpc, receivedAddressString);
@@ -198,6 +197,9 @@ export const useOrchestrator = () => {
 
     // clear broadcast store to prevent channel/message bleed
     broadcastStore.reset();
+
+    // clear blocklist store to prevent address list bleed
+    useBlocklistStore.getState().reset();
   };
 
   return { connect, startSession, onPause, onResume };

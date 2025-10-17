@@ -46,7 +46,7 @@ export const BlockList: React.FC = () => {
                 blocklistStore.setBroadcastBlockedDisplayMode("placeholder")
               }
               className={clsx(
-                "flex w-full cursor-pointer items-center gap-2 rounded-lg border p-3 transition-all",
+                "flex w-full cursor-pointer items-center gap-2 rounded-lg border p-3 transition-all active:rounded-4xl",
                 blocklistStore.broadcastBlockedDisplayMode === "placeholder"
                   ? "bg-kas-secondary/10 border-kas-secondary"
                   : "bg-primary-bg border-primary-border hover:bg-primary-bg/50"
@@ -62,7 +62,7 @@ export const BlockList: React.FC = () => {
                 blocklistStore.setBroadcastBlockedDisplayMode("hide")
               }
               className={clsx(
-                "flex w-full cursor-pointer items-center gap-2 rounded-lg border p-3 transition-all",
+                "flex w-full cursor-pointer items-center gap-2 rounded-lg border p-3 transition-all active:rounded-4xl",
                 blocklistStore.broadcastBlockedDisplayMode === "hide"
                   ? "bg-kas-secondary/10 border-kas-secondary"
                   : "bg-primary-bg border-primary-border hover:bg-primary-bg/50"

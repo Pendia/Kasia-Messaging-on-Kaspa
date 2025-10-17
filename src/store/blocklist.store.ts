@@ -89,7 +89,7 @@ export const useBlocklistStore = create<BlocklistState>((set, get) => ({
         reason,
       };
 
-      await repositories.blockedAddressRepository.blockAddress(
+      await repositories.blockedAddressRepository.saveBlockedAddress(
         newBlockedAddress
       );
 
@@ -120,7 +120,7 @@ export const useBlocklistStore = create<BlocklistState>((set, get) => ({
         throw new Error("Repositories not initialized");
       }
 
-      await repositories.blockedAddressRepository.unblockAddress(address);
+      await repositories.blockedAddressRepository.deleteBlockedAddress(address);
 
       // update in-memory state
       set((state) => {

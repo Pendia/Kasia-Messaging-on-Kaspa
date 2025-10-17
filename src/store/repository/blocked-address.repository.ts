@@ -78,7 +78,7 @@ export class BlockedAddressRepository {
     }
   }
 
-  async blockAddress(
+  async saveBlockedAddress(
     blockedAddress: Omit<BlockedAddress, "tenantId">
   ): Promise<string> {
     // check if already blocked
@@ -96,7 +96,7 @@ export class BlockedAddressRepository {
     );
   }
 
-  async unblockAddress(kaspaAddress: string): Promise<void> {
+  async deleteBlockedAddress(kaspaAddress: string): Promise<void> {
     const blockedAddress =
       await this.getBlockedAddressByKaspaAddress(kaspaAddress);
     await this.db.delete("blockedAddresses", blockedAddress.id);
