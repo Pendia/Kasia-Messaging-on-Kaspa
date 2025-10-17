@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { useBlocklistStore } from "../../store/blocklist.store";
 import { useDBStore } from "../../store/db.store";
 import { useMessagingStore } from "../../store/messaging.store";
+import { useUiStore } from "../../store/ui.store";
 import { toast } from "../../utils/toast-helper";
 import { BlockUnblockButton } from "../Common/BlockUnblockButton";
 
@@ -25,40 +26,47 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({
     oooc.contact.kaspaAddress
   );
 
-  const handleBlockWithConfirmation = async () => {
-    // show confirmation dialog for blocking
-    const confirmed = window.confirm(
-      "This will block and delete ALL messages with this contact"
-    );
+  const uiStore = useUiStore();
 
-    if (!confirmed) return;
+  const handleBlockWithConfirmation = () => {
+    // set up confirmation modal
+    uiStore.setConfirmationConfig({
+      title: "Block Contact",
+      message: "This will block and delete ALL messages with this contact",
+      confirmText: "Block",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        try {
+          // block the contact
+          await blocklistStore.blockAddress(oooc.contact.kaspaAddress);
 
-    try {
-      // block the contact
-      await blocklistStore.blockAddress(oooc.contact.kaspaAddress);
+          // delete all messages, conversation, and contact from database
+          await repositories.deleteAllDataForContact(oooc.contact.id, {
+            deleteConversation: true,
+            deleteContact: true,
+          });
 
-      // delete all messages, conversation, and contact from database
-      await repositories.deleteAllDataForContact(oooc.contact.id, {
-        deleteConversation: true,
-        deleteContact: true,
-      });
+          // remove the conversation from in-memory store
+          useMessagingStore.setState((state) => ({
+            oneOnOneConversations: state.oneOnOneConversations.filter(
+              (conversation) => conversation.contact.id !== oooc.contact.id
+            ),
+          }));
 
-      // remove the conversation from in-memory store
-      useMessagingStore.setState((state) => ({
-        oneOnOneConversations: state.oneOnOneConversations.filter(
-          (conversation) => conversation.contact.id !== oooc.contact.id
-        ),
-      }));
+          // close modal and navigate away
+          messagingStore.setOpenedRecipient(null);
+          onClose();
 
-      // close modal and navigate away
-      messagingStore.setOpenedRecipient(null);
-      onClose();
+          toast.success("Contact blocked and all conversations deleted");
+        } catch (error) {
+          console.error("Error blocking contact:", error);
+          toast.error("Failed to block contact");
+        }
+      },
+    });
 
-      toast.success("Contact blocked and all conversations deleted");
-    } catch (error) {
-      console.error("Error blocking contact:", error);
-      toast.error("Failed to block contact");
-    }
+    // open confirmation modal
+    uiStore.openModal("confirm");
   };
 
   return (

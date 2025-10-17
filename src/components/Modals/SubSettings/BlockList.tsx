@@ -18,7 +18,7 @@ export const BlockList: React.FC = () => {
           onClick={() => setIsBroadcastExpanded(!isBroadcastExpanded)}
           className="hover:bg-secondary-bg -my-2 flex w-full cursor-pointer items-center justify-between rounded-lg p-2 transition-colors"
         >
-          <h4 className="text-text-primary text-base font-bold">
+          <h4 className="text-text-primary text-base font-semibold">
             Broadcast Display Mode
           </h4>
           {isBroadcastExpanded ? (
@@ -54,7 +54,9 @@ export const BlockList: React.FC = () => {
             >
               <div className="text-left">
                 <div className="text-sm font-semibold">Show Placeholder</div>
-                <div className="text-xs">Display "{BLOCKED_PLACEHOLDER}"</div>
+                <div className="text-xs text-[var(--text-secondary)]">
+                  Display "{BLOCKED_PLACEHOLDER}"
+                </div>
               </div>
             </button>
             <button
@@ -70,7 +72,7 @@ export const BlockList: React.FC = () => {
             >
               <div className="text-left">
                 <div className="text-sm font-semibold">Hide Completely</div>
-                <div className="text-xs">
+                <div className="text-xs text-[var(--text-secondary)]">
                   Don't show messages from blocked participants
                 </div>
               </div>
@@ -82,13 +84,15 @@ export const BlockList: React.FC = () => {
       {/* blocked addresses list */}
       <div className="border-primary-border bg-primary-bg rounded-2xl border p-4">
         <div className="mb-3">
-          <div className="text-base font-semibold">
+          <h4 className="text-base font-semibold">
             Blocked Addresses ({blocklistStore.blockedAddressList.length})
-          </div>
+          </h4>
         </div>
 
         {blocklistStore.blockedAddressList.length === 0 ? (
-          <div className="py-4 text-center text-sm">No blocked addresses</div>
+          <div className="py-3 text-center text-sm text-[var(--text-secondary)]">
+            No blocked addresses
+          </div>
         ) : (
           <div className="max-h-80 space-y-2 overflow-y-auto">
             {blocklistStore.blockedAddressList.map((blocked) => (

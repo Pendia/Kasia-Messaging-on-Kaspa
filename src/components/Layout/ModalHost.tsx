@@ -15,6 +15,7 @@ import { BroadcastParticipantInfoModal } from "../Modals/BroadcastParticipantInf
 import { QrScannerModal } from "../Modals/QrScannerModal";
 import { OffChainHandshakeModal } from "../Modals/OffChainHandshakeModal";
 import { DeleteWalletModal } from "../Modals/DeleteWalletModal";
+import { ConfirmationModal } from "../Modals/ConfirmationModal";
 import { useBroadcastStore } from "../../store/broadcast.store";
 import { KASPA_DONATION_ADDRESS } from "../../config/constants";
 
@@ -161,6 +162,14 @@ export const ModalHost = () => {
         <DeleteWalletModal
           isOpen={modals.delete || false}
           onClose={() => closeModal("delete")}
+        />
+      )}
+
+      {/* Confirmation Modal */}
+      {modals.confirm && (
+        <ConfirmationModal
+          isOpen={modals.confirm || false}
+          onClose={() => closeModal("confirm")}
         />
       )}
     </>
