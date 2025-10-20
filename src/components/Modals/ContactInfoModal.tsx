@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { OneOnOneConversation } from "../../types/all";
 import { AvatarHash } from "../icons/AvatarHash";
+import { Tooltip } from "../Common/Tooltip";
 import clsx from "clsx";
 
 type ContactInfoModalProps = {
@@ -80,17 +81,27 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => (
           </div>
         </div>
         <div className="mt-4">
-          <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
-            My Alias
-          </div>
+          <Tooltip
+            content="This is sent from you to the contact. They use this to identify messages from you."
+            position="top start"
+          >
+            <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
+              My Alias
+            </div>
+          </Tooltip>
           <div className="text-sm text-[var(--text-primary)]">
             {oooc.conversation.myAlias}
           </div>
         </div>
         <div>
-          <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
-            Their Alias
-          </div>
+          <Tooltip
+            position="top start"
+            content="Your contacts sent alias. Kasia uses this to 'scan' for messages for you."
+          >
+            <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
+              Their Alias
+            </div>
+          </Tooltip>
           <div className="text-sm text-[var(--text-primary)]">
             {oooc.conversation.theirAlias ?? "N/A"}
           </div>
