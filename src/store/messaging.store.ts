@@ -115,6 +115,13 @@ interface MessagingState {
   setContactNickname: (address: string, nickname?: string) => Promise<void>;
   removeContactNickname: (address: string) => Promise<void>;
 
+  // Alias management
+  updateConversationAliases: (
+    conversationId: string,
+    myAlias?: string,
+    theirAlias?: string
+  ) => Promise<void>;
+
   // Last opened recipient management
   restoreLastOpenedRecipient: (walletAddress: string) => void;
 
@@ -1636,6 +1643,56 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
 
     removeContactNickname: async (address: string) => {
       return g().setContactNickname(address, undefined);
+    },
+
+    updateConversationAliases: async (
+      conversationId: string,
+      myAlias?: string,
+      theirAlias?: string
+    ) => {
+      const manager = g().conversationManager;
+      if (!manager) {
+        throw new Error("Conversation manager not initialized");
+      }
+
+      const oneOnOneConversationIndex = g().oneOnOneConversations.findIndex(
+        (oooc) => oooc.conversation.id === conversationId
+      );
+
+      if (oneOnOneConversationIndex === -1) {
+        throw new Error("Conversation not found");
+      }
+
+      const currentConversation =
+        g().oneOnOneConversations[oneOnOneConversationIndex].conversation;
+
+      // prepare the update object with only the fields that are provided
+      const updates: Pick<Conversation, "id"> & Partial<Conversation> = {
+        id: conversationId,
+      };
+
+      if (myAlias !== undefined) {
+        updates.myAlias = myAlias;
+      }
+
+      if (theirAlias !== undefined) {
+        updates.theirAlias = theirAlias;
+      }
+
+      // update via conversation manager
+      await manager.updateConversation(updates);
+
+      // update local state
+      const copiedOneOnOneConversations = [...g().oneOnOneConversations];
+      copiedOneOnOneConversations[oneOnOneConversationIndex] = {
+        ...copiedOneOnOneConversations[oneOnOneConversationIndex],
+        conversation: {
+          ...currentConversation,
+          ...updates,
+        },
+      };
+
+      set({ oneOnOneConversations: copiedOneOnOneConversations });
     },
 
     // Last opened recipient management
