@@ -1,10 +1,11 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { OneOnOneConversation } from "../../types/all";
 import { AvatarHash } from "../icons/AvatarHash";
 import { Tooltip } from "../Common/Tooltip";
 import clsx from "clsx";
 import { useMessagingStore } from "../../store/messaging.store";
 import { Pencil, X, Check } from "lucide-react";
+import { validateAlias } from "../../utils/alias-validator";
 
 type ContactInfoModalProps = {
   oooc: OneOnOneConversation;
@@ -13,15 +14,35 @@ type ContactInfoModalProps = {
 
 export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
   const [editingAlias, setEditingAlias] = useState<"my" | "their" | null>(null);
-  const [myAliasValue, setMyAliasValue] = useState(oooc.conversation.myAlias);
-  const [theirAliasValue, setTheirAliasValue] = useState(
-    oooc.conversation.theirAlias ?? ""
-  );
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // subscribe to live conversation data from messaging store
+  const liveOooc = useMessagingStore((state) =>
+    state.oneOnOneConversations.find(
+      (o) => o.conversation.id === oooc.conversation.id
+    )
+  );
+
+  // use live data if available, fallback to prop
+  const currentOooc = liveOooc || oooc;
+
+  const [myAliasValue, setMyAliasValue] = useState(
+    currentOooc.conversation.myAlias
+  );
+  const [theirAliasValue, setTheirAliasValue] = useState(
+    currentOooc.conversation.theirAlias ?? ""
+  );
+
   const updateConversationAliases = useMessagingStore(
     (state) => state.updateConversationAliases
   );
+
+  // sync local state when conversation updates
+  useEffect(() => {
+    setMyAliasValue(currentOooc.conversation.myAlias);
+    setTheirAliasValue(currentOooc.conversation.theirAlias ?? "");
+  }, [currentOooc.conversation.myAlias, currentOooc.conversation.theirAlias]);
 
   const handleSaveAlias = async (type: "my" | "their") => {
     setError(null);
@@ -30,23 +51,16 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
     try {
       const aliasToSave = type === "my" ? myAliasValue : theirAliasValue;
 
-      // validate alias format (hex string, specific length)
-      if (!/^[0-9a-fA-F]+$/.test(aliasToSave)) {
-        setError("Alias must be a hexadecimal string");
-        setIsSaving(false);
-        return;
-      }
-
-      if (aliasToSave.length !== oooc.conversation.myAlias.length) {
-        setError(
-          `Alias must be ${oooc.conversation.myAlias.length} characters`
-        );
+      // validate alias format
+      const validationError = validateAlias(aliasToSave);
+      if (validationError) {
+        setError(validationError);
         setIsSaving(false);
         return;
       }
 
       await updateConversationAliases(
-        oooc.conversation.id,
+        currentOooc.conversation.id,
         type === "my" ? myAliasValue : undefined,
         type === "their" ? theirAliasValue : undefined
       );
@@ -61,9 +75,9 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
 
   const handleCancelEdit = (type: "my" | "their") => {
     if (type === "my") {
-      setMyAliasValue(oooc.conversation.myAlias);
+      setMyAliasValue(currentOooc.conversation.myAlias);
     } else {
-      setTheirAliasValue(oooc.conversation.theirAlias ?? "");
+      setTheirAliasValue(currentOooc.conversation.theirAlias ?? "");
     }
     setError(null);
     setEditingAlias(null);
@@ -75,14 +89,14 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10">
             <AvatarHash
-              address={oooc.contact.kaspaAddress}
+              address={currentOooc.contact.kaspaAddress}
               size={40}
               className={clsx({
-                "opacity-60": !!oooc.contact.name?.trim()?.[0],
+                "opacity-60": !!currentOooc.contact.name?.trim()?.[0],
               })}
               selected={true}
             />
-            {oooc.contact.name?.trim()?.slice(0, 2)?.toUpperCase() && (
+            {currentOooc.contact.name?.trim()?.slice(0, 2)?.toUpperCase() && (
               <span
                 className={clsx(
                   "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
@@ -91,13 +105,13 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
                   "rounded-full text-sm leading-none font-bold tracking-wide text-[var(--text-primary)]/80"
                 )}
               >
-                {oooc.contact.name.trim().slice(0, 2).toUpperCase()}
+                {currentOooc.contact.name.trim().slice(0, 2).toUpperCase()}
               </span>
             )}
           </div>
           <div>
             <div className="font-semibold break-all text-[var(--text-primary)]">
-              {oooc.contact.name || "No nickname"}
+              {currentOooc.contact.name || "No nickname"}
             </div>
             <div className="text-sm text-[var(--text-secondary)]">Contact</div>
           </div>
@@ -111,16 +125,16 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
               Address
             </div>
             <div className="text-sm break-all text-[var(--text-primary)]">
-              {oooc.contact.kaspaAddress}
+              {currentOooc.contact.kaspaAddress}
             </div>
           </div>
-          {oooc.contact.name && (
+          {currentOooc.contact.name && (
             <div>
               <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
                 Nickname
               </div>
               <div className="text-sm break-all text-[var(--text-primary)]">
-                {oooc.contact.name}
+                {currentOooc.contact.name}
               </div>
             </div>
           )}
@@ -129,7 +143,7 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
               Messages
             </div>
             <div className="text-sm text-[var(--text-primary)]">
-              {oooc.events.length || 0} messages
+              {currentOooc.events.length || 0} messages
             </div>
           </div>
           <div>
@@ -137,7 +151,7 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
               Last Activity
             </div>
             <div className="text-sm text-[var(--text-primary)]">
-              {oooc.conversation.lastActivityAt.toLocaleString()}
+              {currentOooc.conversation.lastActivityAt.toLocaleString()}
             </div>
           </div>
           <div className="mt-4">
@@ -173,7 +187,7 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
             ) : (
               <div className="flex items-center gap-2">
                 <div className="font-mono text-sm break-all text-[var(--text-primary)]">
-                  {oooc.conversation.myAlias}
+                  {currentOooc.conversation.myAlias}
                 </div>
                 <button
                   onClick={() => setEditingAlias("my")}
@@ -220,9 +234,9 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
             ) : (
               <div className="flex items-center gap-2">
                 <div className="font-mono text-sm break-all text-[var(--text-primary)]">
-                  {oooc.conversation.theirAlias ?? "N/A"}
+                  {currentOooc.conversation.theirAlias ?? "N/A"}
                 </div>
-                {oooc.conversation.theirAlias && (
+                {currentOooc.conversation.theirAlias && (
                   <button
                     onClick={() => setEditingAlias("their")}
                     className="relative cursor-pointer rounded p-1 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"

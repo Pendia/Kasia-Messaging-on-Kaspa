@@ -52,6 +52,7 @@ import {
   importData,
 } from "../service/import-export-service";
 import { useNetworkStore } from "./network.store";
+import { validateAlias } from "../utils/alias-validator";
 
 interface MessagingState {
   isLoaded: boolean;
@@ -1655,6 +1656,21 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
         throw new Error("Conversation manager not initialized");
       }
 
+      // validate em
+      if (myAlias !== undefined && myAlias !== "") {
+        const validationError = validateAlias(myAlias);
+        if (validationError) {
+          throw new Error(`Invalid myAlias: ${validationError}`);
+        }
+      }
+
+      if (theirAlias !== undefined && theirAlias !== "") {
+        const validationError = validateAlias(theirAlias);
+        if (validationError) {
+          throw new Error(`Invalid theirAlias: ${validationError}`);
+        }
+      }
+
       const oneOnOneConversationIndex = g().oneOnOneConversations.findIndex(
         (oooc) => oooc.conversation.id === conversationId
       );
@@ -1663,36 +1679,42 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
         throw new Error("Conversation not found");
       }
 
-      const currentConversation =
-        g().oneOnOneConversations[oneOnOneConversationIndex].conversation;
-
       // prepare the update object with only the fields that are provided
       const updates: Pick<Conversation, "id"> & Partial<Conversation> = {
         id: conversationId,
       };
 
-      if (myAlias !== undefined) {
+      if (myAlias !== undefined && myAlias !== "") {
         updates.myAlias = myAlias;
       }
 
-      if (theirAlias !== undefined) {
+      if (theirAlias !== undefined && theirAlias !== "") {
         updates.theirAlias = theirAlias;
       }
 
-      // update via conversation manager
+      // update via conversation manager (includes persistence)
       await manager.updateConversation(updates);
 
-      // update local state
-      const copiedOneOnOneConversations = [...g().oneOnOneConversations];
-      copiedOneOnOneConversations[oneOnOneConversationIndex] = {
-        ...copiedOneOnOneConversations[oneOnOneConversationIndex],
-        conversation: {
-          ...currentConversation,
-          ...updates,
-        },
-      };
+      // get the updated conversation from manager
+      const updatedConversationWithContact =
+        manager.getConversationWithContactByConversationId(conversationId);
 
-      set({ oneOnOneConversations: copiedOneOnOneConversations });
+      if (!updatedConversationWithContact) {
+        throw new Error("Failed to get updated conversation");
+      }
+
+      // update local state efficiently using map
+      const updatedConversations = g().oneOnOneConversations.map(
+        (oooc, index) =>
+          index === oneOnOneConversationIndex
+            ? {
+                ...oooc,
+                conversation: updatedConversationWithContact.conversation,
+              }
+            : oooc
+      );
+
+      set({ oneOnOneConversations: updatedConversations });
     },
 
     // Last opened recipient management
