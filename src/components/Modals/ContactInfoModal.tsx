@@ -7,6 +7,8 @@ import { useMessagingStore } from "../../store/messaging.store";
 import { Pencil } from "lucide-react";
 import { validateAlias } from "../../utils/alias-validator";
 import { Button } from "../Common/Button";
+import { WarningBlock } from "../Common/WarningBlock";
+import { ALIAS_LENGTH } from "../../config/constants";
 
 type ContactInfoModalProps = {
   oooc: OneOnOneConversation;
@@ -139,22 +141,30 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
               </div>
             </div>
           )}
-          <div>
-            <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
-              Messages
-            </div>
-            <div className="text-sm text-[var(--text-primary)]">
-              {currentOooc.events.length || 0} messages
-            </div>
-          </div>
-          <div>
-            <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
-              Last Activity
-            </div>
-            <div className="text-sm text-[var(--text-primary)]">
-              {currentOooc.conversation.lastActivityAt.toLocaleString()}
-            </div>
-          </div>
+          {!editingAlias ? (
+            <>
+              <div>
+                <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
+                  Messages
+                </div>
+                <div className="text-sm text-[var(--text-primary)]">
+                  {currentOooc.events.length || 0} messages
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-medium tracking-wide text-[var(--text-secondary)] uppercase">
+                  Last Activity
+                </div>
+                <div className="text-sm text-[var(--text-primary)]">
+                  {currentOooc.conversation.lastActivityAt.toLocaleString()}
+                </div>
+              </div>
+            </>
+          ) : (
+            <WarningBlock className="!my-1" title="Warning">
+              Only edit the alias if you're certain on the new values
+            </WarningBlock>
+          )}
           {/* My Alias Section */}
           <div
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
@@ -175,9 +185,9 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
                   <input
                     type="text"
                     value={myAliasValue}
-                    maxLength={12}
+                    maxLength={ALIAS_LENGTH * 2}
                     onChange={(e) => setMyAliasValue(e.target.value)}
-                    className="min-h-10 w-full rounded border border-[var(--secondary-border)] bg-[var(--bg-secondary)] px-3 py-2 font-mono text-sm text-[var(--text-primary)]"
+                    className="min-h-10 w-full rounded border border-[var(--secondary-border)] bg-[var(--bg-secondary)] px-3 py-2 font-mono text-base text-[var(--text-primary)]"
                     placeholder="Enter alias"
                     disabled={isSaving}
                   />
@@ -237,9 +247,9 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
                   <input
                     type="text"
                     value={theirAliasValue}
-                    maxLength={12}
+                    maxLength={ALIAS_LENGTH * 2}
                     onChange={(e) => setTheirAliasValue(e.target.value)}
-                    className="min-h-10 w-full rounded border border-[var(--secondary-border)] bg-[var(--bg-secondary)] px-3 py-2 font-mono text-sm text-[var(--text-primary)]"
+                    className="min-h-10 w-full rounded border border-[var(--secondary-border)] bg-[var(--bg-secondary)] px-3 py-2 font-mono text-base text-[var(--text-primary)]"
                     placeholder="Enter their alias"
                     disabled={isSaving}
                   />
@@ -282,7 +292,7 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
           </div>
           {/* Error display */}
           {error && (
-            <div className="mt-4 rounded border border-[var(--accent-red)] bg-[var(--secondary-bg)] p-3 text-sm text-[var(--accent-red)]">
+            <div className="mt-4 rounded border border-[var(--accent-red)] bg-[var(--accent-red)]/10 p-3 text-sm text-[var(--accent-red)]">
               {error}
             </div>
           )}
