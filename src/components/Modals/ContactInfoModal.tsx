@@ -4,8 +4,9 @@ import { AvatarHash } from "../icons/AvatarHash";
 import { Tooltip } from "../Common/Tooltip";
 import clsx from "clsx";
 import { useMessagingStore } from "../../store/messaging.store";
-import { Pencil, X, Check } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { validateAlias } from "../../utils/alias-validator";
+import { Button } from "../Common/Button";
 
 type ContactInfoModalProps = {
   oooc: OneOnOneConversation;
@@ -154,35 +155,50 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
               {currentOooc.conversation.lastActivityAt.toLocaleString()}
             </div>
           </div>
-          <div className="mt-4">
+          {/* My Alias Section */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              editingAlias === "their"
+                ? "max-h-0 opacity-0"
+                : editingAlias === "my"
+                  ? "max-h-32 opacity-100"
+                  : "max-h-20 opacity-100"
+            }`}
+          >
             <Tooltip trigger="MY ALIAS" position="top start">
               This is sent from you to the contact. They use this to identify
               messages from you.
             </Tooltip>
             {editingAlias === "my" ? (
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  value={myAliasValue}
-                  onChange={(e) => setMyAliasValue(e.target.value)}
-                  className="flex-1 rounded border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2 py-1 font-mono text-sm text-[var(--text-primary)]"
-                  placeholder="Enter alias"
-                  disabled={isSaving}
-                />
-                <button
-                  onClick={() => handleSaveAlias("my")}
-                  disabled={isSaving}
-                  className="rounded bg-[var(--success)] p-1 text-[var(--primary-bg)] hover:opacity-80 disabled:opacity-50"
-                >
-                  <Check className="h-3 w-3" />
-                </button>
-                <button
-                  onClick={() => handleCancelEdit("my")}
-                  disabled={isSaving}
-                  className="rounded bg-[var(--accent-red)] p-1 text-[var(--primary-bg)] hover:opacity-80 disabled:opacity-50"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+              <div className="mt-2 space-y-3">
+                <div className="px-1">
+                  <input
+                    type="text"
+                    value={myAliasValue}
+                    maxLength={12}
+                    onChange={(e) => setMyAliasValue(e.target.value)}
+                    className="min-h-10 w-full rounded border border-[var(--secondary-border)] bg-[var(--bg-secondary)] px-3 py-2 font-mono text-sm text-[var(--text-primary)]"
+                    placeholder="Enter alias"
+                    disabled={isSaving}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleCancelEdit("my")}
+                    disabled={isSaving}
+                    variant="secondary"
+                    className="px-3 py-1 text-xs"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => handleSaveAlias("my")}
+                    disabled={isSaving}
+                    className="px-3 py-1 text-xs"
+                  >
+                    Save
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -200,36 +216,51 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
               </div>
             )}
           </div>
-          <div>
+          {/* Their Alias Section */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              editingAlias === "my"
+                ? "max-h-0 opacity-0"
+                : editingAlias === "their"
+                  ? "max-h-32 opacity-100"
+                  : "max-h-20 opacity-100"
+            }`}
+          >
             <Tooltip trigger="THEIR ALIAS" position="top start">
               Your contacts sent alias. Kasia uses this to 'scan' for messages
               for you.
             </Tooltip>
 
             {editingAlias === "their" ? (
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  value={theirAliasValue}
-                  onChange={(e) => setTheirAliasValue(e.target.value)}
-                  className="flex-1 rounded border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2 py-1 font-mono text-sm text-[var(--text-primary)]"
-                  placeholder="Enter their alias"
-                  disabled={isSaving}
-                />
-                <button
-                  onClick={() => handleSaveAlias("their")}
-                  disabled={isSaving}
-                  className="rounded bg-[var(--success)] p-1 text-[var(--primary-bg)] hover:opacity-80 disabled:opacity-50"
-                >
-                  <Check className="h-3 w-3" />
-                </button>
-                <button
-                  onClick={() => handleCancelEdit("their")}
-                  disabled={isSaving}
-                  className="rounded bg-[var(--accent-red)] p-1 text-[var(--primary-bg)] hover:opacity-80 disabled:opacity-50"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+              <div className="mt-2 space-y-3">
+                <div className="px-1">
+                  <input
+                    type="text"
+                    value={theirAliasValue}
+                    maxLength={12}
+                    onChange={(e) => setTheirAliasValue(e.target.value)}
+                    className="min-h-10 w-full rounded border border-[var(--secondary-border)] bg-[var(--bg-secondary)] px-3 py-2 font-mono text-sm text-[var(--text-primary)]"
+                    placeholder="Enter their alias"
+                    disabled={isSaving}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleCancelEdit("their")}
+                    disabled={isSaving}
+                    variant="secondary"
+                    className="px-3 py-1 text-xs"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => handleSaveAlias("their")}
+                    disabled={isSaving}
+                    className="px-3 py-1 text-xs"
+                  >
+                    Save
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">
