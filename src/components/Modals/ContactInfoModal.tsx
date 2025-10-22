@@ -4,11 +4,12 @@ import { AvatarHash } from "../icons/AvatarHash";
 import { Tooltip } from "../Common/Tooltip";
 import clsx from "clsx";
 import { useMessagingStore } from "../../store/messaging.store";
-import { Pencil } from "lucide-react";
+import { Pencil, CheckCircle } from "lucide-react";
 import { validateAlias } from "../../utils/alias-validator";
 import { Button } from "../Common/Button";
 import { WarningBlock } from "../Common/WarningBlock";
 import { ALIAS_LENGTH } from "../../config/constants";
+import { useSelfStash } from "../../hooks/useSelfStash";
 
 type ContactInfoModalProps = {
   oooc: OneOnOneConversation;
@@ -19,6 +20,7 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
   const [editingAlias, setEditingAlias] = useState<"my" | "their" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [aliasWasEdited, setAliasWasEdited] = useState(false);
 
   // subscribe to live conversation data from messaging store
   const liveOooc = useMessagingStore((state) =>
@@ -41,11 +43,38 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
     (state) => state.updateConversationAliases
   );
 
-  // sync local state when conversation updates
+  // use self stash hook for saving handshake with updated aliases
+  const {
+    isCreating: isCreatingSelfStash,
+    isCompleted: selfStashCompleted,
+    hasSufficientFunds,
+    handleCreateSelfStash,
+  } = useSelfStash({
+    partnerAddress: currentOooc.contact.kaspaAddress,
+    ourAlias: currentOooc.conversation.myAlias,
+    theirAlias: currentOooc.conversation.theirAlias ?? "",
+  });
+
+  // sync local state when conversation updates from store
   useEffect(() => {
     setMyAliasValue(currentOooc.conversation.myAlias);
     setTheirAliasValue(currentOooc.conversation.theirAlias ?? "");
-  }, [currentOooc.conversation.myAlias, currentOooc.conversation.theirAlias]);
+  }, [
+    currentOooc.conversation.myAlias,
+    currentOooc.conversation.theirAlias,
+    currentOooc.conversation.id,
+  ]);
+
+  // auto-hide self stash section after successful save
+  useEffect(() => {
+    if (selfStashCompleted) {
+      const timer = setTimeout(() => {
+        setAliasWasEdited(false);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [selfStashCompleted]);
 
   const handleSaveAlias = async (type: "my" | "their") => {
     setError(null);
@@ -69,6 +98,7 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
       );
 
       setEditingAlias(null);
+      setAliasWasEdited(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update alias");
     } finally {
@@ -294,6 +324,59 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({ oooc }) => {
           {error && (
             <div className="mt-4 rounded border border-[var(--accent-red)] bg-[var(--accent-red)]/10 p-3 text-sm text-[var(--accent-red)]">
               {error}
+            </div>
+          )}
+          {/* Self Stash Section - Shows after alias edits */}
+          {aliasWasEdited && (
+            <div className="mt-4 rounded-lg border border-[var(--button-primary)]/20 bg-[var(--button-primary)]/5 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-1">
+                  <div className="mb-2 flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 flex-shrink-0 text-[var(--kas-secondary)]" />
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                      Aliases updated
+                    </p>
+                  </div>
+                  <p className="mb-3 text-xs text-[var(--text-secondary)]">
+                    Save this change to your handshake on-chain so it syncs
+                    across devices.
+                  </p>
+
+                  {!selfStashCompleted ? (
+                    <Button
+                      onClick={handleCreateSelfStash}
+                      disabled={isCreatingSelfStash || !hasSufficientFunds}
+                      className="w-full"
+                    >
+                      {isCreatingSelfStash ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="border-primary h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></div>
+                          Saving handshake...
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2">
+                          <CheckCircle className="size-5" />
+                          Save Handshake
+                        </div>
+                      )}
+                    </Button>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2 rounded-lg border border-[var(--kas-primary)]/20 bg-[var(--kas-primary)]/10 p-2">
+                      <CheckCircle className="h-4 w-4 text-[var(--kas-secondary)]" />
+                      <span className="text-sm font-semibold text-[var(--kas-secondary)]">
+                        Handshake saved successfully!
+                      </span>
+                    </div>
+                  )}
+
+                  {!hasSufficientFunds && !selfStashCompleted && (
+                    <p className="mt-2 text-xs text-[var(--accent-red)]">
+                      Insufficient funds. You need at least 0.2 KAS to save
+                      handshake.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
