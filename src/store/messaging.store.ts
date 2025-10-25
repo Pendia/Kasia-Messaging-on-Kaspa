@@ -603,6 +603,11 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
             contact: conversationWithContact.contact,
             events: [],
           };
+        } else {
+          // update the conversation reference with the latest from manager
+          // this ensures alias updates from self-stash are reflected (newer than db aliases)
+          oooc.conversation = conversationWithContact.conversation;
+          oooc.contact = conversationWithContact.contact;
         }
 
         const kasiaHandshakesToPersist: Handshake[] = [];
