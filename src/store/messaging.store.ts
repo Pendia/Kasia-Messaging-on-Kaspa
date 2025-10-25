@@ -1184,11 +1184,6 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
             updatedConversationWithContacts[ooocToUpdateIndex] =
               updatedConversation;
 
-            console.log(
-              "updatedConversationWithContacts",
-              updatedConversationWithContacts
-            );
-
             return { oneOnOneConversations: updatedConversationWithContacts };
           });
         } finally {
