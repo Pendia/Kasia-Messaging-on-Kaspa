@@ -3,10 +3,6 @@ import { OneOnOneConversation } from "../../types/all";
 import { AvatarHash } from "../icons/AvatarHash";
 import clsx from "clsx";
 import { useBlocklistStore } from "../../store/blocklist.store";
-import { useMessagingStore } from "../../store/messaging.store";
-import { useUiStore } from "../../store/ui.store";
-import { toast } from "../../utils/toast-helper";
-import { BlockUnblockButton } from "../Common/BlockUnblockButton";
 
 type ContactInfoModalProps = {
   oooc: OneOnOneConversation;
@@ -18,42 +14,10 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({
   onClose,
 }) => {
   const blocklistStore = useBlocklistStore();
-  const messagingStore = useMessagingStore();
 
   const isBlocked = blocklistStore.blockedAddresses.has(
     oooc.contact.kaspaAddress
   );
-
-  const uiStore = useUiStore();
-
-  const handleBlockWithConfirmation = () => {
-    // set up confirmation modal
-    uiStore.setConfirmationConfig({
-      title: "Block Contact",
-      message: "This will block and delete ALL messages with this contact",
-      confirmText: "Block",
-      cancelText: "Cancel",
-      onConfirm: async () => {
-        try {
-          await blocklistStore.blockAddressAndDeleteData(
-            oooc.contact.kaspaAddress
-          );
-
-          // close modal and navigate away
-          messagingStore.setOpenedRecipient(null);
-          onClose();
-
-          toast.success("Contact blocked and all conversations deleted");
-        } catch (error) {
-          console.error("Error blocking contact:", error);
-          toast.error("Failed to block contact");
-        }
-      },
-    });
-
-    // open confirmation modal
-    uiStore.openModal("confirm");
-  };
 
   return (
     <div onClick={(e) => e.stopPropagation()}>
@@ -86,12 +50,6 @@ export const ContactInfoModal: FC<ContactInfoModalProps> = ({
               <div className="font-semibold break-all text-[var(--text-primary)]">
                 {oooc.contact.name || "No nickname"}
               </div>
-              {/* block/unblock button */}
-              <BlockUnblockButton
-                address={oooc.contact.kaspaAddress}
-                onBlock={handleBlockWithConfirmation}
-                className="flex-shrink-0"
-              />
             </div>
             <div className="text-sm text-[var(--text-secondary)]">Contact</div>
           </div>
