@@ -376,18 +376,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setNameChangeError("");
   }, [newWalletName, wallets, selectedWalletId, showNameChange]);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add("settings-modal-open");
-    } else {
-      document.body.classList.remove("settings-modal-open");
-    }
-    return () => {
-      document.body.classList.remove("settings-modal-open");
-    };
-  }, [isOpen]);
-
-  // Reset custom theme state when switching away from custom theme
+  // reset custom theme state when switching away from custom theme
   useEffect(() => {
     if (theme !== "custom") {
       setShowCustomTheme(false);

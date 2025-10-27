@@ -15,6 +15,7 @@ export type ModalType =
   | "delete"
   | "seed"
   | "settings"
+  | "settings-unlocked"
   | "contact-info-modal"
   | "image"
   | "new-chat"

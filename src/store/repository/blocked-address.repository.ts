@@ -32,16 +32,6 @@ export class BlockedAddressRepository {
     readonly walletPassword: string
   ) {}
 
-  async getBlockedAddress(id: string): Promise<BlockedAddress> {
-    const result = await this.db.get("blockedAddresses", id);
-
-    if (!result) {
-      throw new DBNotFoundException();
-    }
-
-    return this._dbBlockedAddressToBlockedAddress(result);
-  }
-
   async getBlockedAddressByKaspaAddress(
     kaspaAddress: string
   ): Promise<BlockedAddress> {

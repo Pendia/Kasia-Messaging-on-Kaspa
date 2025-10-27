@@ -7,6 +7,7 @@ import { Wallet } from "../Modals/Wallet";
 import { WalletSeedRetreiveDisplay } from "../Modals/WalletSeedRetreiveDisplay";
 import { WalletWithdrawal } from "../Modals/WalletWithdrawal";
 import { LockedSettingsModal } from "../Modals/LockedSettingsModal";
+import { SettingsModal } from "../Modals/SettingsModal";
 import { ContactInfoModal } from "../Modals/ContactInfoModal";
 import { NewChatForm } from "../Modals/NewChatForm";
 import { LoaderCircle } from "lucide-react";
@@ -96,6 +97,14 @@ export const ModalHost = () => {
         <Modal onClose={() => closeModal("settings")}>
           <LockedSettingsModal />
         </Modal>
+      )}
+
+      {/* Unlocked Settings Modal */}
+      {modals["settings-unlocked"] && (
+        <SettingsModal
+          isOpen={true}
+          onClose={() => closeModal("settings-unlocked")}
+        />
       )}
 
       {/* Contact Info Modal */}

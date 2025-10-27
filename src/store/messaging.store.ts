@@ -37,11 +37,7 @@ import { Payment } from "./repository/payment.repository";
 import { Message } from "./repository/message.repository";
 import { Handshake } from "./repository/handshake.repository";
 import { HistoricalSyncer } from "../service/historical-syncer";
-import {
-  ContextualMessageResponse,
-  HandshakeResponse,
-  SelfStashResponse,
-} from "../service/indexer/generated";
+import { ContextualMessageResponse } from "../service/indexer/generated";
 import { tryParseBase64AsHexToHex } from "../utils/payload-encoding";
 import { hexToString } from "../utils/format";
 import { RawResolvedKasiaTransaction } from "../service/block-processor-service";
@@ -389,15 +385,6 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
             conversationManager,
             metadata
           );
-
-          // Skip processing historical data for blocked addresses
-          // const blocklistStore = useBlocklistStore.getState();
-          // if (blocklistStore.blockedAddresses.has(senderAddress)) {
-          //   console.log(
-          //     `Skipping historical handshake processing for blocked address: ${senderAddress}`
-          //   );
-          //   return;
-          // }
 
           console.log(
             "Loading Strategy - handshake history reconciliation loaded"
@@ -981,6 +968,7 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
         repositories.handshakeRepository.deleteTenant(walletTenant),
         repositories.messageRepository.deleteTenant(walletTenant),
         repositories.savedHandshakeRepository.deleteTenant(walletTenant),
+        repositories.blockedAddressRepository.deleteTenant(walletTenant),
       ]);
 
       // 3. Reset metadata
@@ -992,6 +980,8 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
         openedRecipient: null,
         isCreatingNewChat: false,
       });
+
+      useBlocklistStore.getState().reset();
 
       // 5. Clear and reinitialize conversation manager
       const manager = g().conversationManager;
@@ -1046,6 +1036,8 @@ export const useMessagingStore = create<MessagingState>((set, g) => {
 
       await g()?.conversationManager?.loadConversations();
       await g().hydrateOneonOneConversations();
+
+      await useBlocklistStore.getState().loadBlockedAddresses();
     },
     conversationManager: null,
     initiateHandshake: async (
